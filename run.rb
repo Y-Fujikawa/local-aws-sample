@@ -18,7 +18,7 @@ ensure
 end
 
 # S3に保存するために体裁を整える
-filename = ENV["CSV_FILE_NAME"] + Date.today.to_s + ".csv"
+filename = "#{ENV['CSV_FILE_NAME']}_#{ENV['TARGET_TABLE']}_#{Date.today.to_s}.csv"
 CSV.open(filename, "wb") do |csv|
   result.values.each do |row|
     csv << row
