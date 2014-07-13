@@ -10,30 +10,24 @@ conn = PG::connect(:host => ENV["PG_HOST"], :dbname => ENV["PG_DBNAME"], :port =
 begin
   # conn を使い PostgreSQL を操作する
   p '接続できました'
-  result = conn.exec('SELECT * FROM customer')
+  result = conn.exec("SELECT * FROM #{ENV['TARGET_TABLE']}")
   # S3に保存するために体裁を整える
   filename = ENV["CSV_FILE_NAME"] + Date.today.to_s + ".csv"
   CSV.open(filename, "wb") do |csv|
-    # ここもっとうまくできないかしら？
-    temp = []
-    result.each do |row|
-      temp.push(row['id'])
-      temp.push(row['name'])
-
-      # CSVに1行ずつ出力する
-      csv << temp
-
-      temp.clear
+    result.values.each do |row|
+      csv << row
     end
   end
 
-  # S3に接続してCSVファイルを保存する
-  s3 = AWS::S3.new(
-    :access_key_id => ENV['AWS_ACCESS_KEY_ID'],
-    :secret_access_key => ENV['AWS_SECRET_ACCESS_KEY']
-  )
-  # TODO S3上に同名のファイルが存在した場合、削除してからアップロードする？
-  s3.buckets[ENV['AWS_S3_BUCKET_NAME']].objects[File.basename(filename)].write(:file => File.expand_path(filename))
+  if ENV['USE_AWS'] == 'true'
+    # S3に接続してCSVファイルを保存する
+    s3 = AWS::S3.new(
+      :access_key_id => ENV['AWS_ACCESS_KEY_ID'],
+      :secret_access_key => ENV['AWS_SECRET_ACCESS_KEY']
+    )
+    # TODO S3上に同名のファイルが存在した場合、削除してからアップロードする？
+    s3.buckets[ENV['AWS_S3_BUCKET_NAME']].objects[File.basename(filename)].write(:file => File.expand_path(filename))
+  end
 ensure
   # データベースへのコネクションを切断する
   conn.finish
