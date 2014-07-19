@@ -34,3 +34,6 @@ if ENV['USE_AWS'] == 'true'
   # TODO S3上に同名のファイルが存在した場合、削除してからアップロードする？
   s3.buckets[ENV['AWS_S3_BUCKET_NAME']].objects[File.basename(filename)].write(:file => File.expand_path(filename))
 end
+
+# 作成したCSVファイルを削除する
+File.unlink filename if File.exist? filename
