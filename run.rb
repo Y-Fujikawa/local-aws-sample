@@ -31,7 +31,9 @@ if ENV['USE_AWS'] == 'true'
     :access_key_id => ENV['AWS_ACCESS_KEY_ID'],
     :secret_access_key => ENV['AWS_SECRET_ACCESS_KEY']
   )
-  # TODO S3上に同名のファイルが存在した場合、削除してからアップロードする？
+  # S3上に同名のファイルが存在した場合、削除してからアップロード
+  old_file = s3.buckets[ENV['AWS_S3_BUCKET_NAME']].objects[File.basename(filename)]
+  old_file.delete if old_file.exists?
   s3.buckets[ENV['AWS_S3_BUCKET_NAME']].objects[File.basename(filename)].write(:file => File.expand_path(filename))
 end
 
