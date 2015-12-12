@@ -13,12 +13,12 @@ begin
 		param = { "key1": "Hello Ruby!!" }.to_json
 
 		resp = lambda.invoke({
-																									function_name: "hello-world",
-																									invocation_type: "Event",
-																									log_type: "None",
-																									client_context: "String",
-																									payload: param
-																							})
+				function_name: "hello-world",
+				invocation_type: "Event",
+				log_type: "None",
+				client_context: "String",
+				payload: param
+		})
 
 		if resp.status_code == 202
 				p "接続できましたよ"
